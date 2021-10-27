@@ -32,16 +32,16 @@ node server/index.js
 1. You need to manually create tables by executing the following scripts
    under db folder.
 
-    SEED_*.sql
+        SEED_*.sql
 
 1. You need a free auth0 account and configure a machine-to-machine app
    with the following confguration: (Maybe not all is needed)
 
-    Allowed Callback URLs: http://localhost:3030/auth/callback, http://localhost:3030/auth
-    Allowed Logout URLs: http://localhost:3000/logout
-    Allowed Web Origins: http://localhost:3000, http://localhost:3030
-    Allowed Origins (CORS): http://localhost:3000, http://localhost:3030
-    Advanced Settings: Grant Types: Authorization Code + Client Credentials
+        Allowed Callback URLs: http://localhost:3030/auth/callback, http://localhost:3030/auth
+        Allowed Logout URLs: http://localhost:3000/logout
+        Allowed Web Origins: http://localhost:3000, http://localhost:3030
+        Allowed Origins (CORS): http://localhost:3000, http://localhost:3030
+        Advanced Settings: Grant Types: Authorization Code + Client Credentials
 
 1. We have created a file server/cfg.js where you have to configure according to your setup.
 
