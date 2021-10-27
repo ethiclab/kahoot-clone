@@ -1,9 +1,9 @@
+(async function() {
 require('dotenv').config();
 const express = require('express')
     ,session = require('express-session')
     ,passport = require('passport')
     ,Auth0Stratagy = require('passport-auth0')
-    ,massive = require('massive')
     ,bodyParser = require('body-parser')
     ,socket = require('socket.io')
     ,quizCtrl = require('./quizCtrl')
@@ -18,7 +18,7 @@ const {
     CALLBACK_URL,
     CONNECTION_STRING,
     FRONTEND_URL
-} =  process.env;
+} =  require('./cfg.js')
 
 const app = express();
 const io = socket(app.listen(SERVER_PORT, ()=>{console.log('Connected on port',SERVER_PORT)}))
@@ -58,8 +58,9 @@ io.on('connection', socket => {
 
 app.use(express.static(`${__dirname}/../build`))
 app.use(bodyParser.json())
-
-massive(CONNECTION_STRING).then(db =>{app.set('db',db)} )
+const pgp = require('pg-promise')()
+const db = pgp(CONNECTION_STRING)
+app.set('db', db)
 
 app.use(session({
     secret:SESSION_SECRET,
@@ -76,42 +77,40 @@ passport.use(new Auth0Stratagy({
     clientSecret:CLIENT_SECRET,
     callbackURL:CALLBACK_URL,
     scope:'openid profile'
-}, (accessToken, refreshToken, extraParams, profile, done)=> {
-    //DB calls here 
-    const db = app.get('db');
-    let {id, displayName, picture} = profile
-    db.get_user([id])
-        .then(user=>{
-            if(user[0]){
-                done(null,user[0].id)
-            }else{db.add_user([displayName, id])
-                .then((createdUser)=>{
-                    done(null, createdUser[0].id)
-                })
-            }
-        })
+}, async (accessToken, refreshToken, extraParams, profile, done) => {
+    console.log('profile', profile)
+    // DB calls here 
+    const db = app.get('db')
+    let { id, displayName, picture } = profile
+    const user = await db.oneOrNone(`SELECT * FROM USERS WHERE AUTH_ID = $1`, [ id ])
+    console.log('user', user)
+    if(user) {
+      done(null, user.id)
+    } else {
+      const createdUser = await db.one(`INSERT INTO USERS (USER_NAME, AUTH_ID) VALUES ($1, $2) RETURNING *`, [ displayName, id ])
+      done(null, createdUser.id)
+    }
 }))
 
-passport.serializeUser( (primaryKeyID,done)=>{
-    done(null, primaryKeyID)
+passport.serializeUser( (id, done) => {
+    done(null, id)
 })
-passport.deserializeUser( (primaryKeyID,done)=>{
-    app.get('db')
-        .find_session_user([primaryKeyID])
-        .then(user=>{
-            done(null, user[0])
-        }) 
+
+passport.deserializeUser( async (id, done) => {
+    const db = app.get('db')
+    const user = await db.one(`SELECT * FROM USERS WHERE ID = $1`, [ id ])
+    done(null, user)
 })
 
 function check(req,res,next) {
-    if(req.user){res.redirect(`${process.env.FRONTEND_URL}#/host`)
+    if(req.user){res.redirect(`${FRONTEND_URL}#/host`)
     } else {next()}
 }
 app.get('/auth', check, passport.authenticate('auth0'));
 app.get('/auth/callback', passport.authenticate('auth0',{
-    successRedirect:`${process.env.FRONTEND_URL}#/host`
+    successRedirect:`${FRONTEND_URL}#/host`
 }))
-app.get('/auth/logout', (req,res)=>{req.logOut();res.redirect(`${process.env.FRONTEND_URL}`)})
+app.get('/auth/logout', (req,res)=>{req.logOut();res.redirect(`${FRONTEND_URL}`)})
 
 app.get('/auth/user', (req,res)=>{ 
     req.user
@@ -143,3 +142,4 @@ app.post('/api/newquiz', quizCtrl.newQuiz )
 
 app.delete('/api/deletequiz/:id', quizCtrl.deleteQuiz)
 app.delete('/api/deletequestion/:id', quizCtrl.deleteQuestion)
+})()
