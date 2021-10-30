@@ -31,5 +31,4 @@ function dock {
 yarn install --frozen-lockfile
 yarn build
 dock kwizz
-cp kwizz.conf $EASY_DOMAINS_DIR/$EASY_LETSENCRYPT_DOMAIN
-easy proxy reload
+./update-proxy-conf.sh
