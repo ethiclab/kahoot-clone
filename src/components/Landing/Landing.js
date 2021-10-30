@@ -76,7 +76,7 @@ class Landing extends Component {
                 <div className='logo-host' >
                     <img src={Kwizzard} alt='' className='kwizzard'/>
                     <div className='btn-host' >
-                        <a id='atag' href='http://localhost:3030/auth'>HOST</a>
+                        <a id='atag' href='/auth'>HOST</a>
                     </div>
                 </div>
             </div>
