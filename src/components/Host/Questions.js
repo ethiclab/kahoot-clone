@@ -40,6 +40,8 @@ class Questions extends Component {
 
     displayEdit(){
         this.setState({
+            newName: this.state.quiz.quiz_name,
+            newInfo: this.state.quiz.info,
             toggle: !this.state.toggle
         })
     }
