@@ -14,8 +14,6 @@ RUN apt-get update > /dev/null 2>&1 && \
 RUN apt-get install -y postgresql > /dev/null 2>&1
 RUN mkdir /app
 COPY . /app
-EXPOSE 80 3030
-VOLUME /usr/share/nginx/html
 WORKDIR /app/db
 USER postgres
 RUN /etc/init.d/postgresql start && \
@@ -26,4 +24,6 @@ RUN /etc/init.d/postgresql start && \
     psql kwizz < grant.sql
 USER root
 WORKDIR /app
+EXPOSE 80 3030
+VOLUME /usr/share/nginx/html /app/server
 CMD nginx && /etc/init.d/postgresql start && pm2 start server/index.js && pm2 logs

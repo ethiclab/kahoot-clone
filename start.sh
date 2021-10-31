@@ -24,6 +24,7 @@ function dock {
   docker run -d --name $1 \
     -v "$DIR/default.conf:/etc/nginx/sites-available/default" \
     -v "$DIR/build:/usr/share/nginx/html" \
+    -v "$DIR/server:/app/server" \
     ethiclab/$1
   docker network connect ethicnet $1
 }
