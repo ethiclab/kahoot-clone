@@ -1,6 +1,9 @@
 module.exports = {
     getQuizzes: async (req, res) => {
-        if (!req || !req.user || !req.user.id) res.status(200).send([])
+        if (!req || !req.user || !req.user.id) {
+	  res.status(200).send([])
+	  return
+	}
         let { id } = req.user
         const db = req.app.get('db')
         const quizzes = await db.manyOrNone(`SELECT * FROM QUIZES WHERE USER_ID = $1`, [id])
