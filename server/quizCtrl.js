@@ -1,5 +1,6 @@
 module.exports = {
     getQuizzes: async (req, res) => {
+        if (!req || !req.user || !req.user.id) res.status(200).send([])
         let { id } = req.user
         const db = req.app.get('db')
         const quizzes = await db.manyOrNone(`SELECT * FROM QUIZES WHERE USER_ID = $1`, [id])
@@ -19,12 +20,11 @@ module.exports = {
         const questions = await db.manyOrNone(`SELECT * FROM questions WHERE quiz_id = $1`, [id])
         res.status(200).send(questions)
     },
-    deleteQuiz: (req, res) => {
+    deleteQuiz: async (req, res) => {
         let { id } = req.params;
         const db = req.app.get('db');
-        db.delete_quiz([id])
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(500).send(err))
+        const result = await db.result(`DELETE FROM quizes WHERE ID = $1`, [id])
+        res.status(200).send(result)
     },
     addQuestion: async (req, res) => {
         let { id, question, answer1, answer2, answer3, answer4, correctAnswer } = req.body;
@@ -32,39 +32,36 @@ module.exports = {
         await db.one(`INSERT INTO questions (quiz_id, question, answer1, answer2, answer3, answer4, correctAnswer) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, [id, question, answer1, answer2, answer3, answer4, correctAnswer])
         res.status(200).send()
     },
-    deleteQuestion: (req, res) => {
+    deleteQuestion: async (req, res) => {
         let { id } = req.params;
         const db = req.app.get('db');
-        db.delete_question([id])
-            .then(() => res.status(200).send())
-            .catch(err => res.status(500).send(err))
+        await db.result(`DELETE FROM questions WHERE ID = $1`, [id])
+        res.status(200).send()
     },
-    getQuestion: (req, res) => {
+    getQuestion: async (req, res) => {
         let { id } = req.params;
         const db = req.app.get('db');
-        db.get_question([id])
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(500).send(err))
+        const question = await db.one(`SELECT * FROM questions WHERE id = $1`, [id])
+        console.log(question)
+        res.status(200).send([question])
     },
-    updateQuestion: (req, res) => {
+    updateQuestion: async (req, res) => {
         let { id, question, answer1, answer2, answer3, answer4, correctAnswer } = req.body;
         const db = req.app.get('db');
-        db.update_question([id, question, answer1, answer2, answer3, answer4, correctAnswer])
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(500).send(err))
+        const result = await db.result(`UPDATE questions SET question = $2, answer1 = $3, answer2 = $4, answer3 = $5, answer4 = $6, correctAnswer = $7 WHERE id = $1`, [id, question, answer1, answer2, answer3, answer4, correctAnswer])
+        res.status(200).send(result)
     },
-    updateQuiz: (req, res) => {
+    updateQuiz: async (req, res) => {
         let { id, newName, newInfo } = req.body;
         const db = req.app.get('db');
-        db.update_quiz([id, newName, newInfo])
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(500).send(err))
+        const result = await db.result(`UPDATE quizes SET quiz_name = $2, info = $3 WHERE id = $1`, [id, newName, newInfo])
+        res.status(200).send(result)
     },
-    getQuiz: (req, res) => {
+    getQuiz: async (req, res) => {
         let { id } = req.params;
         const db = req.app.get('db');
-        db.get_quiz([id])
-            .then(result => res.status(200).send(result))
-            .catch(err => res.status(500).send(err))
+        const quiz = await db.one(`SELECT * FROM quizes WHERE id = $1`, [id])
+        console.log(quiz)
+        res.status(200).send([quiz])
     }
 }
