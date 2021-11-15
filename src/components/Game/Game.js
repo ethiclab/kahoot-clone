@@ -79,7 +79,9 @@ class Game extends Component {
             let checkAnswers = ()=>{
                 let pAnswered = 0;
                 players.forEach((player)=>{
-                    player.qAnswered ? ++pAnswered :null
+                    if(player.qAnswered) {
+                        pAnswered++
+                    }
                 })
                 players.forEach(player => {
                     if(player.answeredCorrect){
@@ -88,8 +90,12 @@ class Game extends Component {
                     }
                     
                 });
-                pAnswered === players.length ? internalTimer=0 : null
-                internalTimer-=1;
+                if (pAnswered === players.length) {
+                    internalTimer = 0
+                }
+                if (internalTimer) {
+                    internalTimer -= 1;
+                }
             }
             let endQuestion = ()=>{
                 clearInterval(timeKept);

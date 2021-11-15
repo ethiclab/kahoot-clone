@@ -33,7 +33,7 @@ export default class Timer extends Component {
     }
   
     startTimer() {
-      if (this.timer == 0) {
+      if (this.timer === 0) {
         this.timer = setInterval(this.countDown, 1000);
       }
     }
@@ -45,7 +45,7 @@ export default class Timer extends Component {
         seconds: seconds,
       });
       
-      if (seconds == 0) { 
+      if (seconds === 0) { 
         clearInterval(this.timer);
       }
     }

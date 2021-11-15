@@ -7,8 +7,8 @@ import './animate.css';
 export default function Zoomin(){
     return (
         <div  className=''>
-            <img src={Jeremy} height='400px'className='jeremy'/>
-            <img src={zoom} height='550px' className='zoom'/>
+            <img src={Jeremy} height='400px' className='jeremy' alt=''/>
+            <img src={zoom} height='550px' className='zoom' alt=''/>
         </div> 
     )
 }
