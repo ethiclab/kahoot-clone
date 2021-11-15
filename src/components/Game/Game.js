@@ -24,6 +24,7 @@ class Game extends Component {
         this.nextQuestion = this.nextQuestion.bind(this);
     }
     componentDidMount() {
+        if (this.props.quiz) {
         axios.get(`/api/getquestions/${this.props.quiz.id}`).then(res => {
             this.setState({ questions: res.data })
             console.log(this.questions)
@@ -36,6 +37,7 @@ class Game extends Component {
         this.socket.on('player-answer', data => {
             this.submitAnswer(data.name, data.answer)
         })
+        }
 
     }
     generatePin() {
@@ -45,15 +47,10 @@ class Game extends Component {
     }
     startGame() {
         let { players } = this.state;
-        if (players[0] //&& players[1] && players[2]
-        ) {
             this.nextQuestion()
             this.setState({
                 isLive: true
             })
-        } else {
-            alert('You need at least 3 players to start')
-        }
     }
     questionOver() {
         let { pin, players } = this.state
@@ -203,8 +200,10 @@ class Game extends Component {
 }
 
 function mapStateToProps(state) {
+    if (state) {
     return {
         quiz: state.quiz
+    }
     }
 }
 
