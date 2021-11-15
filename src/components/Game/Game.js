@@ -32,9 +32,11 @@ class Game extends Component {
         this.socket = io('/');
         this.generatePin();
         this.socket.on('room-joined', data => {
+            console.log('room-joined', data)
             this.addPlayer(data.name, data.id)
         })
         this.socket.on('player-answer', data => {
+            console.log('player-answer', data)
             this.submitAnswer(data.name, data.answer)
         })
         }

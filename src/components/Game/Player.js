@@ -23,13 +23,15 @@ class Player extends Component {
         this.socket = io('/');
         this.socket.emit('player-joined', this.props.selectedPin)
         this.socket.emit('player-add', this.props)
-        this.socket.on('room-joined', (data) => { console.log('Quiz data: ' + data) })
-        this.socket.on('question-over', () => {
+        this.socket.on('room-joined', (data) => { console.log('room-joined', data) })
+        this.socket.on('question-over', (data) => {
+            console.log('question-over', data)
             this.setState({
                 questionOver: true
             })
         })
-        this.socket.on('next-question', () => {
+        this.socket.on('next-question', (data) => {
+            console.log('next-question', data)
             console.log('hit')
             this.setState({
                 gameStarted: true,
@@ -39,6 +41,7 @@ class Player extends Component {
             })
         })
         this.socket.on('sent-info', data => {
+            console.log('sent-info', data)
             this.setState({
                 answeredCorrect: data.answeredCorrect,
                 score: this.state.score + data.score
