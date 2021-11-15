@@ -46,7 +46,6 @@ class Game extends Component {
         this.socket.emit('host-join', { pin: newPin });
     }
     startGame() {
-        let { players } = this.state;
             this.nextQuestion()
             this.setState({
                 isLive: true
