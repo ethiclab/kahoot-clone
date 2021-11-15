@@ -24,6 +24,7 @@ class Game extends Component {
         this.nextQuestion = this.nextQuestion.bind(this);
     }
     componentDidMount() {
+        if (this.props.quiz) {
         axios.get(`/api/getquestions/${this.props.quiz.id}`).then(res => {
             this.setState({ questions: res.data })
             console.log(this.questions)
@@ -36,6 +37,7 @@ class Game extends Component {
         this.socket.on('player-answer', data => {
             this.submitAnswer(data.name, data.answer)
         })
+        }
 
     }
     generatePin() {
@@ -44,16 +46,10 @@ class Game extends Component {
         this.socket.emit('host-join', { pin: newPin });
     }
     startGame() {
-        let { players } = this.state;
-        if (players[0] //&& players[1] && players[2]
-        ) {
             this.nextQuestion()
             this.setState({
                 isLive: true
             })
-        } else {
-            alert('You need at least 3 players to start')
-        }
     }
     questionOver() {
         let { pin, players } = this.state
@@ -83,7 +79,9 @@ class Game extends Component {
             let checkAnswers = ()=>{
                 let pAnswered = 0;
                 players.forEach((player)=>{
-                    player.qAnswered ? ++pAnswered :null
+                    if(player.qAnswered) {
+                        pAnswered++
+                    }
                 })
                 players.forEach(player => {
                     if(player.answeredCorrect){
@@ -92,8 +90,12 @@ class Game extends Component {
                     }
                     
                 });
-                pAnswered === players.length ? internalTimer=0 : null
-                internalTimer-=1;
+                if (pAnswered === players.length) {
+                    internalTimer = 0
+                }
+                if (internalTimer) {
+                    internalTimer -= 1;
+                }
             }
             let endQuestion = ()=>{
                 clearInterval(timeKept);
@@ -203,8 +205,10 @@ class Game extends Component {
 }
 
 function mapStateToProps(state) {
+    if (state) {
     return {
         quiz: state.quiz
+    }
     }
 }
 

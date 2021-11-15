@@ -109,9 +109,11 @@ class Player extends Component {
 }
 
 function mapStateToProps(state) {
+    if (state) {
     return {
         selectedPin: state.selectedPin,
         nickname: state.nickname
+    }
     }
 }
 
